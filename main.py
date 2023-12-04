@@ -1,14 +1,9 @@
 # ©Bisolitario s.r.l.
 
 from typing import Final
-from telegram import Update
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    filters,
-    ContextTypes,
-)
+from telegram import *
+from telegram.ext import *
+import requests
 
 TOKEN: Final = "6562392343:AAGQyrW-wkhsvrqsudgQFZxWAHXdkgus9PU"
 BOT_USERNAME: Final = "@BisolitarioBot"
@@ -16,7 +11,15 @@ BOT_USERNAME: Final = "@BisolitarioBot"
 
 # commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Hello")
+    buttons = [
+        [KeyboardButton("mazzetto")],
+        [KeyboardButton("porcodio")],
+        [KeyboardButton("ooooo")],
+        [KeyboardButton("ooooo")],
+        [KeyboardButton("ooooo")],
+        [KeyboardButton("ooooo")],
+    ]
+    await update.message.reply_text("Hello", reply_markup=ReplyKeyboardMarkup(buttons))
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
