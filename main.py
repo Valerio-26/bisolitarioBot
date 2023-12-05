@@ -11,15 +11,21 @@ BOT_USERNAME: Final = "@BisolitarioBot"
 
 # commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_type: str = update.message.chat.type
+
     buttons = [
         [KeyboardButton("mazzetto")],
         [KeyboardButton("porcodio")],
-        [KeyboardButton("ooooo")],
-        [KeyboardButton("ooooo")],
-        [KeyboardButton("ooooo")],
-        [KeyboardButton("ooooo")],
     ]
-    await update.message.reply_text("Hello", reply_markup=ReplyKeyboardMarkup(buttons))
+
+    # debug
+    print(chat_type)
+
+    # start message
+    if chat_type == "private":
+        await update.message.reply_text(
+            "Ciao, sono @BisolitarioBot, il bot per giocare al gioco Bisolitario!\n\n•Premi /startgame per giocare!"
+        )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -46,22 +52,25 @@ def handle_response(text: str) -> str:
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message_type: str = update.message.chat.type
+    chat_type: str = update.message.chat.type
     text: str = update.message.text
+    username = update.message.from_user.username
 
-    print(f'User ({update.message.chat.id}) in {message_type}: "{text}"')
+    print(f'User ({username}) in {chat_type}: "{text}"')
 
-    if message_type == "group":
-        if BOT_USERNAME in text:
-            new_text: str = text.replace(BOT_USERNAME, "").strip()
-            response: str = handle_response(new_text)
-        else:
-            return
-    else:
+    if chat_type == "private":
         response: str = handle_response(text)
 
         print("Bot: ", response)
         await update.message.reply_text(response)
+    else:
+        if BOT_USERNAME in update.message.text:
+            update.message.reply_text("Hai menzionato il bot!")
+            new_text: str = text.replace(BOT_USERNAME, "").strip()
+            response: str = handle_response(new_text)
+            await update.message.reply_text(response)
+        else:
+            return
 
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
