@@ -3,38 +3,56 @@
 from typing import Final
 from telegram import *
 from telegram.ext import *
+import requests
+
+from library import Card
+import random
 
 TOKEN: Final = "6562392343:AAGQyrW-wkhsvrqsudgQFZxWAHXdkgus9PU"
 BOT_USERNAME: Final = "@BisolitarioBot"
 
+Deck = []
+
+def fillDeck(Deck:list):
+    num = 1
+    suits = ["cuori","quadri","fiori","picche"]
+    for i in range(1, 104 + 1): #104 carte senza jolly
+        Deck.append(Card(num,suits[num%24]))
+        if num < 12:
+            num+=1
+        else:
+            num = 0
+
+def shuffleDeck(Deck:list):
+    pass
+
 
 # commands
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_type: str = update.message.chat.type
-
     buttons = [
-        [KeyboardButton("mazzetto")],
-        [KeyboardButton("porcodio")],
+        [KeyboardButton("mazzetto",request_user=True)],
+        [KeyboardButton("mano",request_contact=True)]
     ]
+    
+    await update.message.reply_text("Hello", reply_markup=ReplyKeyboardMarkup(buttons))
 
-    # debug
-    print(chat_type)
 
-    # start message
-    if chat_type == "private":
-        await update.message.reply_text(
-            "Ciao, sono @BisolitarioBot, il bot per giocare al gioco Bisolitario!\n\n•Premi /startgame per giocare!"
-        )
+async def new_game_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    buttons = [
+        [KeyboardButton("mischia")]]
+    await update.message.reply_text("shuffling", reply_markup=ReplyKeyboardMarkup(buttons))
+
+
+
+
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Help try")
-
+    await update.message.reply_text("Help command try")
 
 async def custom_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print("entrato")
+    print("custom command")
     await update.message.reply_text("boh, custom command")
-
 
 async def put_command(
     update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -44,33 +62,33 @@ async def put_command(
         disable_notification=True,
     )
 
-
 def handle_response(text: str) -> str:
+    processed: str = text.lower()
+    
     if "hello" in text:
         return "hello there"
-
+    else:
+        return "NOTHING"
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_type: str = update.message.chat.type
+    message_type: str = update.message.chat.type  #distingue chat di gruppo da chat private
     text: str = update.message.text
-    username = update.message.from_user.username
 
-    #debug messages
-    print(f'User @{username} in {chat_type}: "{text}"')
+    #UTILE AL DEBUG
+    print(f'User ({update.message.chat.id}) in {message_type}: "{text}"')
 
-    if chat_type == "private":
-        response: str = handle_response(text)
 
-        print("Bot: ", response)
-        await update.message.reply_text(response)
-    else:
+    if message_type == "group":
         if BOT_USERNAME in text:
             new_text: str = text.replace(BOT_USERNAME, "").strip()
             response: str = handle_response(new_text)
-            await update.message.reply_text(response)
         else:
-            return
+            return "NOTHING"
+    else:
+        response: str = handle_response(text)
 
+        #print("Bot: ", response)
+        await update.message.reply_text(response)
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f"Update {update} caused error {context.error}")
@@ -85,6 +103,9 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("custom", custom_command))
     app.add_handler(CommandHandler("put", put_command))
+    app.add_handler(CommandHandler("game", new_game_command))
+
+    fillDeck(Deck)
 
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
