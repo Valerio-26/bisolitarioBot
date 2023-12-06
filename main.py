@@ -84,6 +84,7 @@ async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Chiamata alla funzione per mescolare le carte
         # Ad esempio: shuffle_deck()
         await update.callback_query.answer("Test 1 ok!")
+
     elif data == "test2":
         await update.callback_query.answer("Test 2 ok!")
 
