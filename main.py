@@ -63,6 +63,31 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Hello", reply_markup=ReplyKeyboardMarkup(buttons))
 
 
+# test pulsante
+async def test_pulsante(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    buttons = [
+        [InlineKeyboardButton("Test 1", callback_data="test1")],
+        [InlineKeyboardButton("Test 2", callback_data="test2")],
+    ]
+
+    await update.message.reply_text(
+        "Premi un pulsante", reply_markup=InlineKeyboardMarkup(buttons)
+    )
+
+
+# funzioni pulsanti
+async def handle_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    data = query.data
+
+    if data == "test1":
+        # Chiamata alla funzione per mescolare le carte
+        # Ad esempio: shuffle_deck()
+        await update.callback_query.answer("Test 1 ok!")
+    elif data == "test2":
+        await update.callback_query.answer("Test 2 ok!")
+
+
 async def new_game_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global game_started
     buttons = [[KeyboardButton("mischia")]]
@@ -77,11 +102,12 @@ async def new_game_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def new_game_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+"""async def new_game_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     buttons = [[KeyboardButton("mischia")]]
     await update.message.reply_text(
         "shuffling", reply_markup=ReplyKeyboardMarkup(buttons)
     )
+"""
 
 
 async def join_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -188,6 +214,10 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("game", new_game_command))
     app.add_handler(CommandHandler("join", join_command))
     app.add_handler(CommandHandler("exit", exit_game_command))
+
+    # pulsanti
+    app.add_handler(CommandHandler("test", test_pulsante))
+    app.add_handler(CallbackQueryHandler(handle_button))
 
     # app.add_handler(CommandHandler("custom", custom_command))
     # app.add_handler(CommandHandler("put", put_command))
